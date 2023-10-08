@@ -1,0 +1,11 @@
+#pragma once
+
+#define DISPLAY_WIDTH 64
+#define DISPLAY_HEIGHT 32
+
+#define MEMORY_SIZE_BYTES 4096
+
+#define FPS 60
+#define FRAME_TARGET_TIME (1000/FPS)
+
+#define ROM_ADDRESS_START 0x200
