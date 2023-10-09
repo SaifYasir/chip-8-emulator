@@ -4,6 +4,7 @@
 
 #include "configuration.h"
 #include "cpu.h"
+#include "read_file.h"
 
 void initialise_window();
 void process_input(void);
@@ -30,6 +31,8 @@ double latest_frame_time;
 
 int main(int argc, char *argv[])
 {
+  read_two_bytes_demo();
+
   initialise_window();
 
   while(!quit){
@@ -81,7 +84,6 @@ void update(void){
   if(time_to_wait > 0 && time_to_wait < FRAME_TARGET_TIME){
     SDL_Delay(time_to_wait);
   }
-
   //Do updates here
 }
 
