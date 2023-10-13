@@ -1,10 +1,11 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdio.h>
 
-extern char (*file_location)[];
+uint8_t read_program_demo();
 
-void store_file_location(char (*file_location_input)[]);
+FILE*  get_program_file(char *program_file_name);
+int close_program_file(FILE* file);
 
-uint8_t read_two_bytes_demo();
-uint8_t read_two_bytes();
+uint8_t* read_two_bytes(FILE* file, int* two_byte_buffer);

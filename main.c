@@ -1,6 +1,7 @@
 #include <SDL.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "configuration.h"
 #include "cpu.h"
@@ -29,9 +30,15 @@ SDL_Renderer *renderer;
 bool quit = false;
 double latest_frame_time;
 
+uint8_t* buffer = NULL;
+
 int main(int argc, char *argv[])
 {
-  read_two_bytes_demo();
+  FILE *game_file = get_program_file("IBM Logo.ch8");
+  buffer = malloc(sizeof(uint8_t) * 2);
+  read_two_bytes(game_file,buffer);
+
+  read_program_demo();
 
   initialise_window();
 
@@ -97,4 +104,5 @@ void destroy_window(void){
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
+  free(buffer);
 }
