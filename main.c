@@ -12,6 +12,7 @@ void process_input(void);
 void update(void);
 void render(void);
 void destroy_window(void);
+void handle_opcode(void);
 
 uint8_t delay_timer;
 uint8_t sound_timer;
@@ -31,14 +32,23 @@ bool quit = false;
 double latest_frame_time;
 
 uint8_t* buffer = NULL;
+FILE *game_file = NULL;
+
+struct game{
+  FILE *game_file;
+  uint16_t pc_counter;
+  uint16_t game_start_address;
+} game;
 
 int main(int argc, char *argv[])
 {
-  FILE *game_file = get_program_file("IBM Logo.ch8");
+  uint16_t val1 = 0x00E0;
+
+  load_program_file("IBM Logo.ch8");
+  game_file = get_program_file("IBM Logo.ch8");
   buffer = malloc(sizeof(uint8_t) * 2);
   read_two_bytes(game_file,buffer);
-
-  read_program_demo();
+  handle_opcode();
 
   initialise_window();
 
@@ -105,4 +115,44 @@ void destroy_window(void){
   SDL_DestroyWindow(window);
   SDL_Quit();
   free(buffer);
+  close_program_file(game_file);
+}
+
+void handle_opcode(void){
+  char opcode = (int)(buffer[0] / 16) + '0';
+
+  //If opcode is past '9' in ASCII, move to ASCII 'A'
+  opcode = opcode > '9' ? opcode - ':' + 'A'  : opcode;
+
+  switch (opcode)
+  {
+
+  case '0':
+    //Check second byte to see if its  00E0, 00EE or 0NNN
+    switch (buffer[1])
+    {
+    case 0xE0:
+      SDL_RenderClear(renderer);
+      break;
+    
+    case 0XEE:
+      /* code */
+      break;
+
+    //Assume command is calling Machine Code Routine at 0NNN
+    default:
+      break;
+    }
+    break;
+
+  //OPCODE 1NNN jump to NNN address
+  case '1':
+    uint16_t address = (int)(buffer[0] % 16) +  buffer[1];
+   //Need to figure out how to jump to a certain address
+    break;
+
+  
+  default:
+    break;
+  }
 }
