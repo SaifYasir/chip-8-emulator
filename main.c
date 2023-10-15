@@ -23,22 +23,24 @@ SDL_Renderer *renderer;
 bool quit = false;
 double latest_frame_time;
 
-struct game{
-  uint8_t *chip_8_memory;
+chip_8_machine chip_8;
 
-  int pc_counter;
-  uint8_t* game_start_address;
-  uint8_t delay_timer;
-  uint8_t sound_timer;
-  uint8_t variable_registers[16];
-} game;
+// struct game{
+//   uint8_t *chip_8_memory;
+
+//   int pc_counter;
+//   uint8_t* game_start_address;
+//   uint8_t delay_timer;
+//   uint8_t sound_timer;
+//   uint8_t variable_registers[16];
+// } game;
 
 int main(int argc, char *argv[])
 {
-  game.game_start_address = load_program_file("IBM Logo.ch8");
-  game.pc_counter = 0;
+  chip_8.game_start_address = load_program_file("IBM Logo.ch8");
+  chip_8.pc_counter = 0;
 
-  handle_opcode(game.game_start_address);
+  handle_opcode(chip_8.game_start_address);
 
   initialise_window();
 
