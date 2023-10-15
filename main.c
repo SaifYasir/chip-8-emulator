@@ -12,15 +12,7 @@ void process_input(void);
 void update(void);
 void render(void);
 void destroy_window(void);
-void handle_opcode(void);
-
-uint8_t delay_timer;
-uint8_t sound_timer;
-
-uint8_t variable_registers[16];
-
-unsigned short index_register;
-unsigned short program_counter;
+void handle_opcode(uint8_t* memory_address);
 
 //unsure how to declare 4kB or RAM
 //unsure how to declare "a stack of 16 bit addresses"
@@ -31,24 +23,22 @@ SDL_Renderer *renderer;
 bool quit = false;
 double latest_frame_time;
 
-uint8_t* buffer = NULL;
-FILE *game_file = NULL;
-
 struct game{
-  FILE *game_file;
-  uint16_t pc_counter;
-  uint16_t game_start_address;
+  uint8_t *chip_8_memory;
+
+  int pc_counter;
+  uint8_t* game_start_address;
+  uint8_t delay_timer;
+  uint8_t sound_timer;
+  uint8_t variable_registers[16];
 } game;
 
 int main(int argc, char *argv[])
 {
-  uint16_t val1 = 0x00E0;
+  game.game_start_address = load_program_file("IBM Logo.ch8");
+  game.pc_counter = 0;
 
-  load_program_file("IBM Logo.ch8");
-  game_file = get_program_file("IBM Logo.ch8");
-  buffer = malloc(sizeof(uint8_t) * 2);
-  read_two_bytes(game_file,buffer);
-  handle_opcode();
+  handle_opcode(game.game_start_address);
 
   initialise_window();
 
@@ -114,28 +104,26 @@ void destroy_window(void){
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
-  free(buffer);
-  close_program_file(game_file);
 }
 
-void handle_opcode(void){
-  char opcode = (int)(buffer[0] / 16) + '0';
+void handle_opcode(uint8_t* memory_address){
+  char most_significant_hex = (*(memory_address) >> 4) + '0';
 
   //If opcode is past '9' in ASCII, move to ASCII 'A'
-  opcode = opcode > '9' ? opcode - ':' + 'A'  : opcode;
+  most_significant_hex = most_significant_hex > '9' ? most_significant_hex - ':' + 'A'  : most_significant_hex;
 
-  switch (opcode)
+  switch (most_significant_hex)
   {
 
   case '0':
     //Check second byte to see if its  00E0, 00EE or 0NNN
-    switch (buffer[1])
+    switch (*(memory_address + 1))
     {
     case 0xE0:
       SDL_RenderClear(renderer);
       break;
     
-    case 0XEE:
+    case 0xEE:
       /* code */
       break;
 
@@ -147,7 +135,7 @@ void handle_opcode(void){
 
   //OPCODE 1NNN jump to NNN address
   case '1':
-    uint16_t address = (int)(buffer[0] % 16) +  buffer[1];
+    // uint16_t address = (int)(buffer[0] % 16) +  buffer[1];
    //Need to figure out how to jump to a certain address
     break;
 
