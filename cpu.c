@@ -4,7 +4,7 @@
 #include "cpu.h"
 
 chip_8_machine* assign_program_memory(chip_8_machine* chip_8){
-    chip_8->chip_8_memory_start = malloc(MEMORY_SIZE_BYTES * sizeof(uint8_t) + 1);
+    chip_8->chip_8_memory = malloc(MEMORY_SIZE_BYTES * sizeof(uint8_t) + 1);
     return chip_8;
 }
 
@@ -34,11 +34,11 @@ int font_size = sizeof(FONT_SET);
 
 for (int i = 0; i < font_size; i++)
 {
-    chip_8->chip_8_memory_start[FONT_ADDRESS_START + i] = FONT_SET[i];
+    chip_8->chip_8_memory[FONT_ADDRESS_START + i] = FONT_SET[i];
 }
     return chip_8;
 }
 
 int remove_program_memory(chip_8_machine* chip_8){
-    free(chip_8->chip_8_memory_start);
+    free(chip_8->chip_8_memory);
 }

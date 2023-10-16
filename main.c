@@ -25,16 +25,6 @@ double latest_frame_time;
 
 chip_8_machine chip_8;
 
-// struct game{
-//   uint8_t *chip_8_memory;
-
-//   int pc_counter;
-//   uint8_t* game_start_address;
-//   uint8_t delay_timer;
-//   uint8_t sound_timer;
-//   uint8_t variable_registers[16];
-// } game;
-
 int main(int argc, char *argv[])
 {
   chip_8.game_start_address = load_program_file("IBM Logo.ch8");
@@ -42,6 +32,7 @@ int main(int argc, char *argv[])
 
   assign_program_memory(&chip_8);
   assign_font_set(&chip_8);
+
   handle_opcode(chip_8.game_start_address);
 
   initialise_window();
@@ -139,12 +130,32 @@ void handle_opcode(uint8_t* memory_address){
 
   //OPCODE 1NNN jump to NNN address
   case '1':
-    // uint16_t address = (int)(buffer[0] % 16) +  buffer[1];
-   //Need to figure out how to jump to a certain address
+    uint8_t next_four_bits = (*memory_address) & 0xFF;
+    uint8_t last_eight_bits = *(memory_address + 1);
+    uint16_t jmp_address = next_four_bits + last_eight_bits;
+    handle_opcode(chip_8.chip_8_memory + jmp_address);
     break;
 
+  case '6':
+    uint8_t variable_number = (*memory_address) & 0xF;
+    uint8_t value = *(memory_address + 1);
+    chip_8.variable_registers[variable_number] = value;
+  break;
+
+  case '7':
+    uint8_t variable_number = (*memory_address) & 0xF;
+    uint8_t value = *(memory_address + 1);
+    chip_8.variable_registers[variable_number] += value;
+  break;
+
+  case 'A':
+    uint8_t next_four_bits = (*memory_address) & 0xFF;
+    uint8_t last_eight_bits = *(memory_address + 1);
+    chip_8.index_register = next_four_bits + last_eight_bits;
+  break;
   
-  default:
-    break;
+  case 'D':
+  
+  break;
   }
 }
