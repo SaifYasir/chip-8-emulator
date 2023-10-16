@@ -40,6 +40,8 @@ int main(int argc, char *argv[])
   chip_8.game_start_address = load_program_file("IBM Logo.ch8");
   chip_8.pc_counter = 0;
 
+  assign_program_memory(&chip_8);
+  assign_font_set(&chip_8);
   handle_opcode(chip_8.game_start_address);
 
   initialise_window();

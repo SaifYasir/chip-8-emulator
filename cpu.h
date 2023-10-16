@@ -6,6 +6,7 @@
 
 #define MEMORY_SIZE_BYTES 4096
 #define ROM_ADDRESS_START 0x200
+#define FONT_ADDRESS_START 0x50
 
 typedef struct chip_8_machine{
   uint8_t *chip_8_memory_start;
@@ -18,6 +19,9 @@ typedef struct chip_8_machine{
 
   uint8_t variable_registers[16];
 } chip_8_machine;
+
+chip_8_machine* assign_program_memory(chip_8_machine* chip_8);
+chip_8_machine* assign_font_set(chip_8_machine* chip_8);
 
 //need to set address of where it would be
 // uint8_t FONT_SET[5][16] = {
