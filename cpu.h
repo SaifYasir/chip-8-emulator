@@ -2,10 +2,13 @@
 
 #include <stdint.h>
 
+#include "read_file.h"
+
 #define MEMORY_SIZE_BYTES 4096
+#define ROM_ADDRESS_START 0x200
 
 typedef struct chip_8_machine{
-  uint8_t *chip_8_memory;
+  uint8_t *chip_8_memory_start;
 
   int pc_counter;
   uint8_t* game_start_address;
