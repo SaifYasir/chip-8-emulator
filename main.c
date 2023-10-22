@@ -14,9 +14,6 @@ void render(void);
 void destroy_window(void);
 void handle_opcode(uint8_t* memory_address);
 
-//unsure how to declare 4kB or RAM
-//unsure how to declare "a stack of 16 bit addresses"
-
 SDL_Window *window;
 SDL_Renderer *renderer;
 
@@ -155,7 +152,50 @@ void handle_opcode(uint8_t* memory_address){
   break;
   
   case 'D':
-  
+    display_sprite(memory_address);
   break;
+  }
+}
+
+void display_sprite(uint8_t* memory_address){
+  uint8_t* x_coord_register = chip_8.variable_registers[(*memory_address) & 0xFF];
+  uint8_t* y_coord_register = chip_8.variable_registers[*(memory_address + 1) & 0xFF00];
+
+  uint8_t x_coord = *x_coord_register % DISPLAY_WIDTH;
+  uint8_t y_coord = *y_coord_register % DISPLAY_HEIGHT;
+
+  chip_8.variable_registers[15] = 0;
+  
+  uint8_t height = *(memory_address + 1) & 0xFF;
+
+  SDL_Rect pixel = {0,0,1,1};
+  for (int row = 0; row < height; row++)
+  {
+    if (y_coord + row >= DISPLAY_HEIGHT){
+      break;
+    }
+    uint8_t sprite_data = *(chip_8.game_start_address + chip_8.index_register + row);
+    //get data for every sprite that is coloured
+    for (int bit = 0; bit < 8; bit++)
+    {
+      if(x_coord + bit >= DISPLAY_WIDTH || (sprite_data & bit) != bit){
+        break;
+      }
+
+      pixel.x = x_coord;
+      pixel.y = y_coord;
+
+      uint8_t pixel_info;
+      SDL_RenderReadPixels(renderer, &pixel, SDL_PIXELFORMAT_INDEX8, pixel_info, 1);
+
+      //TODO: find if pixel has been turned on, not sure what if statement needs to be
+      if (pixel_info)
+      {
+        chip_8.variable_registers[15] = 1;
+        //Make pixel white
+      }else{
+        //turn pixel on
+      }
+    }
   }
 }
