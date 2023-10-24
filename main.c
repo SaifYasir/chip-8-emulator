@@ -57,9 +57,10 @@ void initialise_window(void){
     SDL_WINDOWPOS_UNDEFINED,
     DISPLAY_WIDTH,
     DISPLAY_HEIGHT,
-    0
+    SDL_WINDOW_RESIZABLE
   );
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+  SDL_RenderSetLogicalSize(renderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 }
 
 void process_input(void){
