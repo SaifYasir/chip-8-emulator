@@ -13,6 +13,7 @@ void update(void);
 void render(void);
 void destroy_window(void);
 void handle_opcode(uint8_t* memory_address);
+void display_sprite(uint8_t* memory_address);
 
 SDL_Window *window;
 SDL_Renderer *renderer;
@@ -30,9 +31,13 @@ int main(int argc, char *argv[])
   assign_program_memory(&chip_8);
   assign_font_set(&chip_8);
 
-  handle_opcode(chip_8.game_start_address);
-
   initialise_window();
+
+  while (1)
+  {
+    handle_opcode(chip_8.game_start_address + chip_8.pc_counter);
+    chip_8.pc_counter+=2;
+  }
 
   while(!quit){
     process_input();
@@ -140,15 +145,15 @@ void handle_opcode(uint8_t* memory_address){
   break;
 
   case '7':
-    uint8_t variable_number = (*memory_address) & 0xF;
-    uint8_t value = *(memory_address + 1);
-    chip_8.variable_registers[variable_number] += value;
+    uint8_t variable_number_7 = (*memory_address) & 0xF;
+    uint8_t value_7 = *(memory_address + 1);
+    chip_8.variable_registers[variable_number_7] += value_7;
   break;
 
   case 'A':
-    uint8_t next_four_bits = (*memory_address) & 0xFF;
-    uint8_t last_eight_bits = *(memory_address + 1);
-    chip_8.index_register = next_four_bits + last_eight_bits;
+    uint16_t next_four_bits_A = ((*memory_address) & 0xF) << 8;
+    uint16_t last_eight_bits_A = *(memory_address + 1);
+    chip_8.index_register = next_four_bits_A + last_eight_bits_A;
   break;
   
   case 'D':
@@ -158,15 +163,15 @@ void handle_opcode(uint8_t* memory_address){
 }
 
 void display_sprite(uint8_t* memory_address){
-  uint8_t* x_coord_register = chip_8.variable_registers[(*memory_address) & 0xFF];
-  uint8_t* y_coord_register = chip_8.variable_registers[*(memory_address + 1) & 0xFF00];
+  uint8_t x_coord_register = chip_8.variable_registers[(*memory_address) & 0xF];
+  uint8_t y_coord_register = chip_8.variable_registers[*(memory_address + 1) >> 4];
 
-  uint8_t x_coord = *x_coord_register % DISPLAY_WIDTH;
-  uint8_t y_coord = *y_coord_register % DISPLAY_HEIGHT;
+  uint8_t x_coord = x_coord_register % DISPLAY_WIDTH;
+  uint8_t y_coord = y_coord_register % DISPLAY_HEIGHT;
 
   chip_8.variable_registers[15] = 0;
   
-  uint8_t height = *(memory_address + 1) & 0xFF;
+  uint8_t height = *(memory_address + 1) & 0xF;
 
   SDL_Rect pixel = {0,0,1,1};
   for (int row = 0; row < height; row++)
@@ -185,11 +190,11 @@ void display_sprite(uint8_t* memory_address){
       pixel.x = x_coord;
       pixel.y = y_coord;
 
-      uint8_t pixel_info;
+      void* pixel_info;
       SDL_RenderReadPixels(renderer, &pixel, SDL_PIXELFORMAT_INDEX8, pixel_info, 1);
 
       //TODO: find if pixel has been turned on, not sure what if statement needs to be
-      if (pixel_info)
+      if (*((int*)pixel_info))
       {
         chip_8.variable_registers[15] = 1;
         //Make pixel white
