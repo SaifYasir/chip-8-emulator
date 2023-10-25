@@ -179,6 +179,7 @@ void display_sprite(uint8_t* memory_address){
   uint8_t height = *(memory_address + 1) & 0xF;
 
   SDL_Rect pixel = {0,0,1,1};
+  uint32_t pixel_info;
   for (int row = 0; row < height; row++)
   {
     if (y_coord + row >= DISPLAY_HEIGHT){
@@ -195,7 +196,6 @@ void display_sprite(uint8_t* memory_address){
       pixel.x = x_coord;
       pixel.y = y_coord;
 
-      uint32_t pixel_info;
       //SDL_PIXELFORMAT_INDEX8
       SDL_RenderReadPixels(renderer, &pixel, 0, &pixel_info, 1);
 
@@ -210,6 +210,8 @@ void display_sprite(uint8_t* memory_address){
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
         SDL_RenderDrawPoint(renderer,pixel.x,pixel.y);
       }
+
+      SDL_RenderPresent(renderer);
     }
   }
 }
