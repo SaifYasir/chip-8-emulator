@@ -33,6 +33,10 @@ int main(int argc, char *argv[])
 
   initialise_window();
 
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+  SDL_RenderClear(renderer);
+  SDL_RenderPresent(renderer);
+
   while (1)
   {
     handle_opcode(chip_8.game_start_address + chip_8.pc_counter);
@@ -191,16 +195,20 @@ void display_sprite(uint8_t* memory_address){
       pixel.x = x_coord;
       pixel.y = y_coord;
 
-      void* pixel_info;
-      SDL_RenderReadPixels(renderer, &pixel, SDL_PIXELFORMAT_INDEX8, pixel_info, 1);
+      uint32_t pixel_info;
+      //SDL_PIXELFORMAT_INDEX8
+      SDL_RenderReadPixels(renderer, &pixel, 0, &pixel_info, 1);
 
-      //TODO: find if pixel has been turned on, not sure what if statement needs to be
-      if (*((int*)pixel_info))
+      //Because format is ARGB; to see if its not black needs to be greater than 1 byte (Opacity is 8 bits)
+      if (pixel_info > 0)
       {
         chip_8.variable_registers[15] = 1;
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        SDL_RenderDrawPoint(renderer,pixel.x,pixel.y);
         //Make pixel white
       }else{
-        //turn pixel on
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+        SDL_RenderDrawPoint(renderer,pixel.x,pixel.y);
       }
     }
   }
