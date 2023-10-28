@@ -39,15 +39,11 @@ chip_8_machine* load_program_file_in_to_program_memory(chip_8_machine* chip_8, c
     fseek(file,0,SEEK_END);
     long fsize = ftell(file);
     fseek(file,0,SEEK_SET);
-
     int instruction_amount = fsize/sizeof(uint8_t);
 
     chip_8->game_start_address = chip_8->chip_8_memory + ROM_ADDRESS_START;
-    //uint8_t* program_ptr = chip_8->chip_8_memory + ROM_ADDRESS_START;
-
-    //fread(program_ptr, sizeof(uint8_t), instruction_amount, file);
+    chip_8->pc_counter_end = ROM_ADDRESS_START + instruction_amount;
     fread(chip_8->game_start_address, sizeof(uint8_t), instruction_amount, file);
-
 
     fclose(file);
     return chip_8;

@@ -10,6 +10,7 @@ typedef struct chip_8_machine{
   uint8_t *chip_8_memory;
 
   int pc_counter;
+  uint16_t pc_counter_end;
   uint8_t* game_start_address;
 
   uint8_t delay_timer;

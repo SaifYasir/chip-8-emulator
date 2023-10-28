@@ -138,7 +138,7 @@ void handle_opcode(uint8_t* memory_address){
 
   //OPCODE 1NNN jump to NNN address
   case '1':
-    uint8_t next_four_bits = (*memory_address) & 0xFF;
+    uint8_t next_four_bits = (*memory_address) & 0xF;
     uint8_t last_eight_bits = *(memory_address + 1);
     uint16_t jmp_address = next_four_bits + last_eight_bits;
     handle_opcode(chip_8.chip_8_memory + jmp_address);

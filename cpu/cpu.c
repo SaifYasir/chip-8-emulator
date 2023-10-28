@@ -4,9 +4,6 @@
 #include "cpu.h"
 
 chip_8_machine* assign_program_memory(chip_8_machine* chip_8){
-    // chip_8->chip_8_memory = malloc(MEMORY_SIZE_BYTES * sizeof(uint8_t) + 1);
-
-    //TODO: Change back to malloc
     chip_8->chip_8_memory = calloc(MEMORY_SIZE_BYTES,sizeof(uint8_t));
     return chip_8;
 }
