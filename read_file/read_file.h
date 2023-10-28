@@ -3,10 +3,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-uint8_t read_program_demo();
+#include "cpu.h"
 
-FILE*  get_program_file(char *program_file_name);
-int close_program_file(FILE* file);
-
-uint8_t* read_two_bytes(FILE* file, uint8_t* two_byte_buffer);
 uint8_t* load_program_file(char *program_file_name);
+
+chip_8_machine* load_program_file_in_to_program_memory(chip_8_machine* chip_8, char *program_file_name);

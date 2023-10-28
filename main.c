@@ -25,12 +25,12 @@ chip_8_machine chip_8;
 
 int main(int argc, char *argv[])
 {
-  chip_8.game_start_address = load_program_file("IBM Logo.ch8");
-  chip_8.pc_counter = 0;
-
+  //chip_8.game_start_address = load_program_file("IBM Logo.ch8");
   assign_program_memory(&chip_8);
+  load_program_file_in_to_program_memory(&chip_8,"IBM Logo.ch8");
   assign_font_set(&chip_8);
 
+  chip_8.pc_counter = 0;
   initialise_window();
 
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
@@ -122,6 +122,7 @@ void handle_opcode(uint8_t* memory_address){
     switch (*(memory_address + 1))
     {
     case 0xE0:
+      SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
       SDL_RenderClear(renderer);
       break;
     
@@ -185,16 +186,20 @@ void display_sprite(uint8_t* memory_address){
     if (y_coord + row >= DISPLAY_HEIGHT){
       break;
     }
-    uint8_t sprite_data = *(chip_8.game_start_address + chip_8.index_register + row);
+    uint8_t sprite_data = *(chip_8.chip_8_memory + chip_8.index_register + row);
+
     //get data for every sprite that is coloured
     for (int bit = 0; bit < 8; bit++)
     {
-      if(x_coord + bit >= DISPLAY_WIDTH || (sprite_data & bit) != bit){
-        break;
+      uint8_t bit_value = (int)pow(2,7-bit);
+      bool bit_value_is_1 = (sprite_data & bit_value) == bit_value;
+
+      if(x_coord + bit >= DISPLAY_WIDTH || !bit_value_is_1){
+        continue;
       }
 
-      pixel.x = x_coord;
-      pixel.y = y_coord;
+      pixel.x = x_coord + bit;
+      pixel.y = y_coord + row;
 
       //SDL_PIXELFORMAT_INDEX8
       SDL_RenderReadPixels(renderer, &pixel, 0, &pixel_info, 1);
@@ -210,8 +215,7 @@ void display_sprite(uint8_t* memory_address){
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
         SDL_RenderDrawPoint(renderer,pixel.x,pixel.y);
       }
-
-      SDL_RenderPresent(renderer);
     }
+    SDL_RenderPresent(renderer);
   }
 }

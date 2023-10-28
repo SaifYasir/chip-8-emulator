@@ -7,11 +7,13 @@ find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/read_file)
 include_directories(${CMAKE_SOURCE_DIR}/games)
+include_directories(${CMAKE_SOURCE_DIR}/cpu)
 include_directories(${CMAKE_SOURCE_DIR})
 
 file(GLOB all_files
     "${PROJECT_SOURCE_DIR}/*"
     "${PROJECT_SOURCE_DIR}/games/*"
+    "${PROJECT_SOURCE_DIR}/cpu/*"
     "${PROJECT_SOURCE_DIR}/read_file/*"
 )
 
