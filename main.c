@@ -9,7 +9,7 @@
 
 void initialise_window();
 void process_input(void);
-void update(void);
+void delay_time(void);
 void render(void);
 void destroy_window(void);
 void handle_opcode(uint8_t* memory_address);
@@ -25,10 +25,13 @@ chip_8_machine chip_8;
 
 int main(int argc, char *argv[])
 {
-  //chip_8.game_start_address = load_program_file("IBM Logo.ch8");
   assign_program_memory(&chip_8);
   load_program_file_in_to_program_memory(&chip_8,"IBM Logo.ch8");
   assign_font_set(&chip_8);
+
+  int val2 = chip_8.chip_8_memory[131];
+  int val = chip_8.chip_8_memory[132];
+  int val3 = chip_8.chip_8_memory[133];
 
   chip_8.pc_counter = 0;
   initialise_window();
@@ -37,17 +40,18 @@ int main(int argc, char *argv[])
   SDL_RenderClear(renderer);
   SDL_RenderPresent(renderer);
 
-  while (1)
+//NEED TO STOP WHEN PROGRAM ENDS
+  while (chip_8.pc_counter < chip_8.pc_counter_end)
   {
     handle_opcode(chip_8.game_start_address + chip_8.pc_counter);
     chip_8.pc_counter+=2;
   }
 
-  while(!quit){
-    process_input();
-    update();
-    render();
+  while (true)
+  {
+    SDL_Delay(UINT32_MAX);
   }
+  
 
   destroy_window();
   return 0;
@@ -88,12 +92,11 @@ void process_input(void){
   }
 }
 
-void update(void){
-  double time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks64() - latest_frame_time);
-  if(time_to_wait > 0 && time_to_wait < FRAME_TARGET_TIME){
+void delay_time(void){
+  double time_to_wait = SECS_PER_INSTRUCTION - (SDL_GetTicks64() - latest_frame_time);
+  if(time_to_wait > 0 && time_to_wait < SECS_PER_INSTRUCTION){
     SDL_Delay(time_to_wait);
   }
-  //Do updates here
 }
 
 void render(void){
@@ -109,6 +112,8 @@ void destroy_window(void){
 }
 
 void handle_opcode(uint8_t* memory_address){
+  delay_time();
+
   char most_significant_hex = (*(memory_address) >> 4) + '0';
 
   //If opcode is past '9' in ASCII, move to ASCII 'A'
