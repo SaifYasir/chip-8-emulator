@@ -29,10 +29,6 @@ int main(int argc, char *argv[])
   load_program_file_in_to_program_memory(&chip_8,"IBM Logo.ch8");
   assign_font_set(&chip_8);
 
-  int val2 = chip_8.chip_8_memory[131];
-  int val = chip_8.chip_8_memory[132];
-  int val3 = chip_8.chip_8_memory[133];
-
   chip_8.pc_counter = 0;
   initialise_window();
 
