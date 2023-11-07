@@ -33,25 +33,18 @@ int main(int argc, char *argv[])
   chip_8.pc_counter = 0;
   initialise_window();
 
-  //SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-  //SDL_RenderClear(renderer);
-  //SDL_RenderPresent(renderer);
-
 //NEED TO STOP WHEN PROGRAM ENDS
   while (chip_8.pc_counter < chip_8.pc_counter_end && !quit)
   {
-    //SDL_SetWindowSize(window,EMULATOR_SCREEN_WIDTH + chip_8.pc_counter, EMULATOR_SCREEN_HEIGHT + chip_8.pc_counter);
     handle_opcode(chip_8.game_start_address + chip_8.pc_counter);
     chip_8.pc_counter+=2;
     process_input();
   }
 
-  //SDL_SetWindowResizable(window,true);
   while (!quit)
   {
     delay_time();
     process_input();
-    //SDL_RenderPresent(renderer);
   }
   
 

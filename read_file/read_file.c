@@ -17,9 +17,6 @@ uint8_t* load_program_file(char *program_file_name){
     fseek(file,0,SEEK_SET);
 
     int instruction_amount = fsize/sizeof(uint8_t);
-
-    //TODO: Put back to malloc
-    //uint8_t *game = malloc(fsize + 1);
     uint8_t *game = calloc(instruction_amount,sizeof(uint8_t));
 
     fread(game, sizeof(uint8_t), instruction_amount, file);

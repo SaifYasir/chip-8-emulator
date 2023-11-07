@@ -10,8 +10,7 @@ chip_8_machine* assign_program_memory(chip_8_machine* chip_8){
 
 chip_8_machine* assign_font_set(chip_8_machine* chip_8){
 
-//uint8_t FONT_SET[5][16]
-    uint8_t FONT_SET[80] = {
+uint8_t FONT_SET[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
