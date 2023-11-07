@@ -17,6 +17,7 @@ void display_sprite(uint8_t* memory_address);
 
 SDL_Window *window;
 SDL_Renderer *renderer;
+SDL_Texture *back_buffer;
 
 bool quit = false;
 double latest_frame_time;
@@ -32,20 +33,25 @@ int main(int argc, char *argv[])
   chip_8.pc_counter = 0;
   initialise_window();
 
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-  SDL_RenderClear(renderer);
-  SDL_RenderPresent(renderer);
+  //SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+  //SDL_RenderClear(renderer);
+  //SDL_RenderPresent(renderer);
 
 //NEED TO STOP WHEN PROGRAM ENDS
-  while (chip_8.pc_counter < chip_8.pc_counter_end)
+  while (chip_8.pc_counter < chip_8.pc_counter_end && !quit)
   {
+    //SDL_SetWindowSize(window,EMULATOR_SCREEN_WIDTH + chip_8.pc_counter, EMULATOR_SCREEN_HEIGHT + chip_8.pc_counter);
     handle_opcode(chip_8.game_start_address + chip_8.pc_counter);
     chip_8.pc_counter+=2;
+    process_input();
   }
 
-  while (true)
+  //SDL_SetWindowResizable(window,true);
+  while (!quit)
   {
-    SDL_Delay(UINT32_MAX);
+    delay_time();
+    process_input();
+    //SDL_RenderPresent(renderer);
   }
   
 
@@ -59,12 +65,13 @@ void initialise_window(void){
     "CHIP-8",
     SDL_WINDOWPOS_UNDEFINED,
     SDL_WINDOWPOS_UNDEFINED,
-    DISPLAY_WIDTH,
-    DISPLAY_HEIGHT,
+    EMULATOR_SCREEN_WIDTH,
+    EMULATOR_SCREEN_HEIGHT,
     SDL_WINDOW_RESIZABLE
   );
-  renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+  renderer = SDL_CreateRenderer(window, -1, 0);
   SDL_RenderSetLogicalSize(renderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+  back_buffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,DISPLAY_WIDTH,DISPLAY_HEIGHT);
 }
 
 void process_input(void){
@@ -74,6 +81,12 @@ void process_input(void){
     if(event.type == SDL_QUIT){
       quit = true;
       return;
+    }
+    else if (event.type == SDL_WINDOWEVENT){
+      if(event.window.event == SDL_WINDOWEVENT_RESIZED){
+        SDL_RenderCopy(renderer, back_buffer, NULL, NULL);
+        SDL_RenderPresent(renderer);
+      }
     }
     else if (event.type == SDL_KEYDOWN)
     {
@@ -187,6 +200,7 @@ void display_sprite(uint8_t* memory_address){
     if (y_coord + row >= DISPLAY_HEIGHT){
       break;
     }
+    SDL_SetRenderTarget(renderer,back_buffer);
     uint8_t sprite_data = *(chip_8.chip_8_memory + chip_8.index_register + row);
 
     //get data for every sprite that is coloured
@@ -217,6 +231,8 @@ void display_sprite(uint8_t* memory_address){
         SDL_RenderDrawPoint(renderer,pixel.x,pixel.y);
       }
     }
+    SDL_SetRenderTarget(renderer, NULL);
+    SDL_RenderCopy(renderer, back_buffer, NULL, NULL);
     SDL_RenderPresent(renderer);
   }
 }
