@@ -116,15 +116,15 @@ void destroy_window(void){
 void handle_opcode(uint8_t* memory_address){
   delay_time();
 
-  char most_significant_hex = (*(memory_address) >> 4) + '0';
-
-  //If opcode is past '9' in ASCII, move to ASCII 'A'
-  most_significant_hex = most_significant_hex > '9' ? most_significant_hex - ':' + 'A'  : most_significant_hex;
+  uint8_t most_significant_hex = *memory_address >> 4;
+  uint8_t second_most_significant_hex = *memory_address & 0xF;
+  uint8_t third_most_significant_hex = *(memory_address + 1) >> 4;
+  uint8_t fourth_most_significant_hex = *(memory_address + 1) & 0xF;
 
   switch (most_significant_hex)
   {
 
-  case '0':
+  case 0x0:
     //Check second byte to see if its  00E0, 00EE or 0NNN
     switch (*(memory_address + 1))
     {
@@ -144,32 +144,27 @@ void handle_opcode(uint8_t* memory_address){
     break;
 
   //OPCODE 1NNN jump to NNN address
-  case '1':
-    uint8_t next_four_bits = (*memory_address) & 0xF;
-    uint8_t last_eight_bits = *(memory_address + 1);
-    uint16_t jmp_address = next_four_bits + last_eight_bits;
+  case 0x1:
+    uint16_t jmp_address = second_most_significant_hex + third_most_significant_hex + fourth_most_significant_hex;
     handle_opcode(chip_8.chip_8_memory + jmp_address);
     break;
-
-  case '6':
-    uint8_t variable_number = (*memory_address) & 0xF;
-    uint8_t value = *(memory_address + 1);
-    chip_8.variable_registers[variable_number] = value;
+  
+  case 0x3:
   break;
 
-  case '7':
-    uint8_t variable_number_7 = (*memory_address) & 0xF;
-    uint8_t value_7 = *(memory_address + 1);
-    chip_8.variable_registers[variable_number_7] += value_7;
+  case 0x6:
+    chip_8.variable_registers[second_most_significant_hex] = third_most_significant_hex + fourth_most_significant_hex;
   break;
 
-  case 'A':
-    uint16_t next_four_bits_A = ((*memory_address) & 0xF) << 8;
-    uint16_t last_eight_bits_A = *(memory_address + 1);
-    chip_8.index_register = next_four_bits_A + last_eight_bits_A;
+  case 0x7:
+    chip_8.variable_registers[second_most_significant_hex] += third_most_significant_hex + fourth_most_significant_hex;
+  break;
+
+  case 0xA:
+    chip_8.index_register = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
   break;
   
-  case 'D':
+  case 0xD:
     display_sprite(memory_address);
   break;
   }
