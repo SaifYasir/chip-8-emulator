@@ -126,13 +126,14 @@ void handle_opcode(uint8_t* memory_address){
 
   case 0x0:
     //Check second byte to see if its  00E0, 00EE or 0NNN
-    switch (*(memory_address + 1))
+    switch ((third_most_significant_hex << 4) + fourth_most_significant_hex)
     {
     case 0xE0:
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
       SDL_RenderClear(renderer);
       break;
     
+    //NOT TESTED
     case 0xEE:
       /* code */
       break;
@@ -149,15 +150,40 @@ void handle_opcode(uint8_t* memory_address){
     handle_opcode(chip_8.chip_8_memory + jmp_address);
     break;
   
+  //NOT TESTED
   case 0x3:
+    if(chip_8.variable_registers[second_most_significant_hex] == (third_most_significant_hex << 4) + fourth_most_significant_hex){
+      chip_8.pc_counter += 2;
+    }
+  break;
+
+  //NOT TESTED
+  case 0x4:
+    if(chip_8.variable_registers[second_most_significant_hex] != (third_most_significant_hex << 4) + fourth_most_significant_hex){
+      chip_8.pc_counter += 2;
+    }
+  break;
+
+  case 0x5:
+    if(chip_8.variable_registers[second_most_significant_hex] == chip_8.variable_registers[third_most_significant_hex]){
+      chip_8.pc_counter += 2;
+    }
   break;
 
   case 0x6:
     chip_8.variable_registers[second_most_significant_hex] = third_most_significant_hex + fourth_most_significant_hex;
   break;
 
+  //NOT TESTED
   case 0x7:
-    chip_8.variable_registers[second_most_significant_hex] += third_most_significant_hex + fourth_most_significant_hex;
+    chip_8.variable_registers[second_most_significant_hex] += (third_most_significant_hex << 4) + fourth_most_significant_hex;
+  break;
+
+  //NOT TESTED
+  case 0x9:
+    if(chip_8.variable_registers[second_most_significant_hex] != chip_8.variable_registers[third_most_significant_hex]){
+      chip_8.pc_counter += 2;
+    }
   break;
 
   case 0xA:
