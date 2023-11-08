@@ -1,2 +1,4 @@
 # chip-8-emulator
 A chip-8 emulator with C
+
+THIS IS STILL IN EARLY DEVELOPMENT -> MORE INFO WILL BE AVAILABLE WHEN STABLE
