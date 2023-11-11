@@ -30,14 +30,12 @@ int main(int argc, char *argv[])
   // load_program_file_in_to_program_memory(&chip_8,"IBM Logo.ch8");
   load_program_file_in_to_program_memory(&chip_8,"test_opcode.ch8");
   assign_font_set(&chip_8);
-
-  chip_8.pc_counter = 0;
   initialise_window();
 
 //NEED TO STOP WHEN PROGRAM ENDS
   while (chip_8.pc_counter < chip_8.pc_counter_end && !quit)
   {
-    handle_opcode(chip_8.game_start_address + chip_8.pc_counter);
+    handle_opcode(chip_8.chip_8_memory + chip_8.pc_counter);
     chip_8.pc_counter+=2;
     process_input();
   }
@@ -139,17 +137,23 @@ void handle_opcode(uint8_t* memory_address){
       chip_8.pc_counter = pop_stack(&chip_8);
       break;
 
-    //Assume command is calling Machine Code Routine at 0NNN
+    //Assume command is calling Machine Code Routine at 0NNN, this is not implemented
     default:
       break;
     }
     break;
 
+  //UNTESTED
   //OPCODE 1NNN jump to NNN address
   case 0x1:
-    uint16_t jmp_address = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
-    handle_opcode(chip_8.chip_8_memory + jmp_address);
+    uint16_t jump_counter = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
+    chip_8.pc_counter = jump_counter;
+    handle_opcode(chip_8.chip_8_memory + chip_8.pc_counter);
     break;
+  
+  case 0x2:
+    
+  break;
   
   //NOT TESTED
   case 0x3:

@@ -38,6 +38,7 @@ chip_8_machine* load_program_file_in_to_program_memory(chip_8_machine* chip_8, c
     int instruction_amount = fsize/sizeof(uint8_t);
 
     chip_8->game_start_address = chip_8->chip_8_memory + ROM_ADDRESS_START;
+    chip_8->pc_counter = ROM_ADDRESS_START;
     chip_8->pc_counter_end = ROM_ADDRESS_START + instruction_amount - 1;
     fread(chip_8->game_start_address, sizeof(uint8_t), instruction_amount, file);
 
