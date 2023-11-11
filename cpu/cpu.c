@@ -41,3 +41,36 @@ for (int i = 0; i < font_size; i++)
 int remove_program_memory(chip_8_machine* chip_8){
     free(chip_8->chip_8_memory);
 }
+
+
+stack_t* add_to_stack(chip_8_machine* chip_8, uint16_t value){
+    stack_t* stack = chip_8->stack;
+    if(stack == NULL){
+        chip_8->stack = malloc(sizeof(stack_t));
+        chip_8->stack->value = value;
+        return chip_8->stack;
+    }
+    while(stack->next_ptr != NULL){
+        stack = stack->next_ptr;
+    }
+    stack_t* new_node = malloc(sizeof(stack_t));
+    new_node->value = value;
+    stack->next_ptr = new_node;
+    return stack;
+}
+
+uint16_t pop_stack(chip_8_machine* chip_8){
+    stack_t* stack = chip_8->stack;
+    stack_t* previous_ptr = stack;
+    if(stack == NULL){
+        return NULL;
+    }
+    while(stack->next_ptr != NULL){
+        previous_ptr = stack;
+        stack = stack->next_ptr;
+    }
+    previous_ptr->next_ptr = NULL;
+    uint16_t val = stack->value;
+    free(stack);
+    return val;
+}
