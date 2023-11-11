@@ -27,7 +27,8 @@ chip_8_machine chip_8;
 int main(int argc, char *argv[])
 {
   assign_program_memory(&chip_8);
-  load_program_file_in_to_program_memory(&chip_8,"IBM Logo.ch8");
+  // load_program_file_in_to_program_memory(&chip_8,"IBM Logo.ch8");
+  load_program_file_in_to_program_memory(&chip_8,"test_opcode.ch8");
   assign_font_set(&chip_8);
 
   chip_8.pc_counter = 0;
@@ -135,7 +136,7 @@ void handle_opcode(uint8_t* memory_address){
     
     //NOT TESTED
     case 0xEE:
-      /* code */
+      chip_8.pc_counter = pop_stack(&chip_8);
       break;
 
     //Assume command is calling Machine Code Routine at 0NNN
@@ -146,7 +147,7 @@ void handle_opcode(uint8_t* memory_address){
 
   //OPCODE 1NNN jump to NNN address
   case 0x1:
-    uint16_t jmp_address = second_most_significant_hex + third_most_significant_hex + fourth_most_significant_hex;
+    uint16_t jmp_address = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
     handle_opcode(chip_8.chip_8_memory + jmp_address);
     break;
   
@@ -171,13 +172,81 @@ void handle_opcode(uint8_t* memory_address){
   break;
 
   case 0x6:
-    chip_8.variable_registers[second_most_significant_hex] = third_most_significant_hex + fourth_most_significant_hex;
+    chip_8.variable_registers[second_most_significant_hex] = (third_most_significant_hex << 4) + fourth_most_significant_hex;
   break;
 
   //NOT TESTED
   case 0x7:
     chip_8.variable_registers[second_most_significant_hex] += (third_most_significant_hex << 4) + fourth_most_significant_hex;
   break;
+
+  case 0x8:
+  switch (fourth_most_significant_hex)
+  {
+    //NOT TESTED
+    case 0:
+      chip_8.variable_registers[second_most_significant_hex] = chip_8.variable_registers[third_most_significant_hex];
+    break;
+
+    //NOT TESTED
+    case 1:
+      chip_8.variable_registers[second_most_significant_hex] = chip_8.variable_registers[second_most_significant_hex] | chip_8.variable_registers[third_most_significant_hex];
+    break;
+
+    //NOT TESTED
+    case 2:
+      chip_8.variable_registers[second_most_significant_hex] = chip_8.variable_registers[second_most_significant_hex] & chip_8.variable_registers[third_most_significant_hex];
+    break;
+
+    //NOT TESTED
+    case 3:
+      chip_8.variable_registers[second_most_significant_hex] = chip_8.variable_registers[second_most_significant_hex] ^ chip_8.variable_registers[third_most_significant_hex];
+    break;
+
+    //NOT TESTED
+    case 4:
+      if(chip_8.variable_registers[second_most_significant_hex] + chip_8.variable_registers[third_most_significant_hex] > UINT8_MAX)
+      {
+        chip_8.variable_registers[0xF] = 1;
+      }else{
+        chip_8.variable_registers[0xF] = 0;
+      }
+      chip_8.variable_registers[second_most_significant_hex] += chip_8.variable_registers[third_most_significant_hex];
+    break;
+
+    //NOT TESTED
+    case 5:
+      if(chip_8.variable_registers[second_most_significant_hex] - chip_8.variable_registers[third_most_significant_hex] < 0)
+      {
+        chip_8.variable_registers[0xF] = 0;
+      }else{
+        chip_8.variable_registers[0xF] = 1;
+      }
+      chip_8.variable_registers[second_most_significant_hex] -= chip_8.variable_registers[third_most_significant_hex];
+    break;
+
+    //NOT TESTED
+    case 6:
+      chip_8.variable_registers[0xF] = chip_8.variable_registers[second_most_significant_hex] & 1;
+      chip_8.variable_registers[second_most_significant_hex] >>= 1;
+    break;
+
+    //NOT TESTED
+    case 7:
+      if(chip_8.variable_registers[third_most_significant_hex] - chip_8.variable_registers[second_most_significant_hex] < 0)
+      {
+        chip_8.variable_registers[0xF] = 0;
+      }else{
+        chip_8.variable_registers[0xF] = 1;
+      }
+      chip_8.variable_registers[second_most_significant_hex] = chip_8.variable_registers[third_most_significant_hex] - chip_8.variable_registers[second_most_significant_hex];
+    break;
+
+    case 0xE:
+      chip_8.variable_registers[0xF] = chip_8.variable_registers[second_most_significant_hex] & 0x80;
+      chip_8.variable_registers[second_most_significant_hex] <<= 1;
+    break;
+  }
 
   //NOT TESTED
   case 0x9:
@@ -192,6 +261,28 @@ void handle_opcode(uint8_t* memory_address){
   
   case 0xD:
     display_sprite(memory_address);
+  break;
+
+  //NOTE TESTED
+  case 0xF:
+    switch ((third_most_significant_hex << 4) + fourth_most_significant_hex)
+    {
+      //NOT TESTED
+      case 0x33:
+        uint8_t val = chip_8.variable_registers[second_most_significant_hex];
+        *(chip_8.chip_8_memory + chip_8.index_register) = val / 100;
+        *(chip_8.chip_8_memory + chip_8.index_register + 1) = (val % 100) / 10;
+        *(chip_8.chip_8_memory + chip_8.index_register + 1) = (val % 10);
+      break;
+
+      //NOT TESTED
+      case 0x55:
+        for (int i = 0; i < (sizeof(chip_8.variable_registers) / sizeof(chip_8.variable_registers[0])); i++)
+        {
+          *(chip_8.chip_8_memory + chip_8.index_register + i) = chip_8.variable_registers[i];
+        }
+      break;
+    }
   break;
   }
 }
