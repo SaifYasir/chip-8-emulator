@@ -143,26 +143,19 @@ void handle_opcode(uint8_t* memory_address){
     }
     break;
 
-  //UNTESTED
   //OPCODE 1NNN jump to NNN address
   case 0x1:
     uint16_t jump_counter = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
     chip_8.pc_counter = jump_counter;
-    handle_opcode(chip_8.chip_8_memory + chip_8.pc_counter);
-    break;
-  
-  case 0x2:
-    
+    handle_opcode(chip_8.chip_8_memory + chip_8.pc_counter);  
   break;
   
-  //NOT TESTED
   case 0x3:
     if(chip_8.variable_registers[second_most_significant_hex] == (third_most_significant_hex << 4) + fourth_most_significant_hex){
       chip_8.pc_counter += 2;
     }
   break;
 
-  //NOT TESTED
   case 0x4:
     if(chip_8.variable_registers[second_most_significant_hex] != (third_most_significant_hex << 4) + fourth_most_significant_hex){
       chip_8.pc_counter += 2;
@@ -187,7 +180,6 @@ void handle_opcode(uint8_t* memory_address){
   case 0x8:
   switch (fourth_most_significant_hex)
   {
-    //NOT TESTED
     case 0:
       chip_8.variable_registers[second_most_significant_hex] = chip_8.variable_registers[third_most_significant_hex];
     break;
@@ -252,7 +244,6 @@ void handle_opcode(uint8_t* memory_address){
     break;
   }
 
-  //NOT TESTED
   case 0x9:
     if(chip_8.variable_registers[second_most_significant_hex] != chip_8.variable_registers[third_most_significant_hex]){
       chip_8.pc_counter += 2;
