@@ -155,8 +155,9 @@ void handle_opcode(uint8_t* memory_address){
   case 0x2:
     uint16_t call_counter = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
     add_to_stack(&chip_8,chip_8.pc_counter);
-    chip_8.pc_counter = call_counter;
-    handle_opcode(chip_8.chip_8_memory + chip_8.pc_counter);  
+
+    //Make pc counter 2 less than expected due to main loop incrementing pc counter by 2
+    chip_8.pc_counter = call_counter - 2;
   break;
   
   case 0x3:
