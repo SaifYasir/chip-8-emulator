@@ -146,8 +146,9 @@ void handle_opcode(uint8_t* memory_address){
   //OPCODE 1NNN jump to NNN address
   case 0x1:
     uint16_t jump_counter = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
-    chip_8.pc_counter = jump_counter;
-    handle_opcode(chip_8.chip_8_memory + chip_8.pc_counter);  
+    
+    //Make pc counter 2 less than expected due to main loop incrementing pc counter by 2
+    chip_8.pc_counter = jump_counter - 2;
   break;
 
   //NOT TESTED
