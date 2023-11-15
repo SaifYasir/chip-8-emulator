@@ -27,8 +27,8 @@ chip_8_machine chip_8;
 int main(int argc, char *argv[])
 {
   assign_program_memory(&chip_8);
-  load_program_file_in_to_program_memory(&chip_8,"IBM Logo.ch8");
-  //load_program_file_in_to_program_memory(&chip_8,"test_opcode.ch8");
+  //load_program_file_in_to_program_memory(&chip_8,"IBM Logo.ch8");
+  load_program_file_in_to_program_memory(&chip_8,"test_opcode.ch8");
   assign_font_set(&chip_8);
   initialise_window();
 
@@ -134,7 +134,8 @@ void handle_opcode(uint8_t* memory_address){
     
     //NOT TESTED
     case 0xEE:
-      chip_8.pc_counter = pop_stack(&chip_8);
+      //Make pc counter 2 less than expected due to main loop incrementing pc counter by 2
+      chip_8.pc_counter = pop_stack(&chip_8) - 2;
       break;
 
     //Assume command is calling Machine Code Routine at 0NNN, this is not implemented
