@@ -142,7 +142,7 @@ void handle_opcode(uint8_t* memory_address){
     default:
       break;
     }
-    break;
+  break;
 
   //OPCODE 1NNN jump to NNN address
   case 0x1:
@@ -152,13 +152,12 @@ void handle_opcode(uint8_t* memory_address){
     chip_8.pc_counter = jump_counter - 2;
   break;
 
-  //NOT TESTED
   case 0x2:
-    uint16_t call_counter = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
-    add_to_stack(&chip_8,chip_8.pc_counter);
+    // uint16_t call_counter = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
+    // add_to_stack(&chip_8,chip_8.pc_counter);
 
-    //Make pc counter 2 less than expected due to main loop incrementing pc counter by 2
-    chip_8.pc_counter = call_counter - 2;
+    // //Make pc counter 2 less than expected due to main loop incrementing pc counter by 2
+    // chip_8.pc_counter = call_counter - 2;
   break;
   
   case 0x3:
@@ -194,22 +193,18 @@ void handle_opcode(uint8_t* memory_address){
         chip_8.variable_registers[second_most_significant_hex] = chip_8.variable_registers[third_most_significant_hex];
       break;
 
-      //NOT TESTED
       case 1:
         chip_8.variable_registers[second_most_significant_hex] = chip_8.variable_registers[second_most_significant_hex] | chip_8.variable_registers[third_most_significant_hex];
       break;
 
-      //NOT TESTED
       case 2:
         chip_8.variable_registers[second_most_significant_hex] = chip_8.variable_registers[second_most_significant_hex] & chip_8.variable_registers[third_most_significant_hex];
       break;
 
-      //NOT TESTED
       case 3:
         chip_8.variable_registers[second_most_significant_hex] = chip_8.variable_registers[second_most_significant_hex] ^ chip_8.variable_registers[third_most_significant_hex];
       break;
 
-      //NOT TESTED
       case 4:
         if(chip_8.variable_registers[second_most_significant_hex] + chip_8.variable_registers[third_most_significant_hex] > UINT8_MAX)
         {
@@ -220,7 +215,6 @@ void handle_opcode(uint8_t* memory_address){
         chip_8.variable_registers[second_most_significant_hex] += chip_8.variable_registers[third_most_significant_hex];
       break;
 
-      //NOT TESTED
       case 5:
         if(chip_8.variable_registers[second_most_significant_hex] - chip_8.variable_registers[third_most_significant_hex] < 0)
         {
@@ -231,7 +225,6 @@ void handle_opcode(uint8_t* memory_address){
         chip_8.variable_registers[second_most_significant_hex] -= chip_8.variable_registers[third_most_significant_hex];
       break;
 
-      //NOT TESTED
       case 6:
         chip_8.variable_registers[0xF] = chip_8.variable_registers[second_most_significant_hex] & 1;
         chip_8.variable_registers[second_most_significant_hex] >>= 1;

@@ -48,6 +48,7 @@ stack_t* add_to_stack(chip_8_machine* chip_8, uint16_t value){
     if(stack == NULL){
         chip_8->stack = malloc(sizeof(stack_t));
         chip_8->stack->value = value;
+        chip_8->stack->next_ptr = NULL;
         return chip_8->stack;
     }
     while(stack->next_ptr != NULL){
@@ -55,6 +56,7 @@ stack_t* add_to_stack(chip_8_machine* chip_8, uint16_t value){
     }
     stack_t* new_node = malloc(sizeof(stack_t));
     new_node->value = value;
+    new_node->next_ptr = NULL;
     stack->next_ptr = new_node;
     return stack;
 }
@@ -71,6 +73,9 @@ uint16_t pop_stack(chip_8_machine* chip_8){
     }
     previous_ptr->next_ptr = NULL;
     uint16_t val = stack->value;
+    if(previous_ptr == stack){
+        chip_8->stack = NULL;
+    }
     free(stack);
     return val;
 }
