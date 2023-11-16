@@ -132,10 +132,9 @@ void handle_opcode(uint8_t* memory_address){
       SDL_RenderClear(renderer);
       break;
     
-    //NOT TESTED
     case 0xEE:
-      //Make pc counter 2 less than expected due to main loop incrementing pc counter by 2
-      chip_8.pc_counter = pop_stack(&chip_8) - 2;
+      //Main loop will increment pc counter by 2, skipping the jmp / call instruction
+      chip_8.pc_counter = pop_stack(&chip_8);
       break;
 
     //Assume command is calling Machine Code Routine at 0NNN, this is not implemented
@@ -153,11 +152,11 @@ void handle_opcode(uint8_t* memory_address){
   break;
 
   case 0x2:
-    // uint16_t call_counter = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
-    // add_to_stack(&chip_8,chip_8.pc_counter);
+    uint16_t call_counter = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
+    add_to_stack(&chip_8,chip_8.pc_counter);
 
-    // //Make pc counter 2 less than expected due to main loop incrementing pc counter by 2
-    // chip_8.pc_counter = call_counter - 2;
+    //Make pc counter 2 less than expected due to main loop incrementing pc counter by 2
+    chip_8.pc_counter = call_counter - 2;
   break;
   
   case 0x3:
