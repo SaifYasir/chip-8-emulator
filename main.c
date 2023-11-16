@@ -309,24 +309,25 @@ void handle_opcode(uint8_t* memory_address){
       case 0x29:
       break;
 
-      //NOT TESTED
       case 0x33:
         uint8_t val = chip_8.variable_registers[second_most_significant_hex];
         *(chip_8.chip_8_memory + chip_8.index_register) = val / 100;
         *(chip_8.chip_8_memory + chip_8.index_register + 1) = (val % 100) / 10;
-        *(chip_8.chip_8_memory + chip_8.index_register + 1) = (val % 10);
+        *(chip_8.chip_8_memory + chip_8.index_register + 2) = (val % 10);
       break;
 
-      //NOT TESTED
       case 0x55:
-        for (int i = 0; i < (sizeof(chip_8.variable_registers) / sizeof(chip_8.variable_registers[0])); i++)
+        for (int i = 0; i <= second_most_significant_hex; i++)
         {
           *(chip_8.chip_8_memory + chip_8.index_register + i) = chip_8.variable_registers[i];
         }
       break;
 
-      //TODO: IMPLEMENT
       case 0x65:
+        for (int i = 0; i <= second_most_significant_hex; i++)
+        {
+          chip_8.variable_registers[i] = *(chip_8.chip_8_memory + chip_8.index_register + i);
+        }
       break;
     }
   break;
