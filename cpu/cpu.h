@@ -6,6 +6,9 @@
 #define ROM_ADDRESS_START 0x200
 #define FONT_ADDRESS_START 0x50
 
+#define TIMER_HERTZ 60
+#define TIME_PER_CYCLE_MILLISECONDS (1000 / TIMER_HERTZ)
+
 typedef struct stack{
     uint16_t value;
     struct stack* next_ptr;

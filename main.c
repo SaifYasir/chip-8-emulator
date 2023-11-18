@@ -21,6 +21,7 @@ SDL_Texture *back_buffer;
 
 bool quit = false;
 double latest_frame_time;
+double timer_miliseconds_remainder = 0;
 
 chip_8_machine chip_8;
 
@@ -28,7 +29,8 @@ int main(int argc, char *argv[])
 {
   assign_program_memory(&chip_8);
   //load_program_file_in_to_program_memory(&chip_8,"IBM Logo.ch8");
-  load_program_file_in_to_program_memory(&chip_8,"test_opcode.ch8");
+  // load_program_file_in_to_program_memory(&chip_8,"test_opcode.ch8");
+  load_program_file_in_to_program_memory(&chip_8,"flags.ch8");
   assign_font_set(&chip_8);
   initialise_window();
 
@@ -84,17 +86,26 @@ void process_input(void){
     {
       switch (event.key.keysym.sym)
       {
-      case SDLK_ESCAPE:
-        quit = true;
-        break;
+        case SDLK_ESCAPE:
+          quit = true;
+          break;
       }
     }
-    
   }
 }
 
 void delay_time(void){
-  double time_to_wait = SECS_PER_INSTRUCTION - (SDL_GetTicks64() - latest_frame_time);
+  double time_passed = SDL_GetTicks64() - latest_frame_time;
+  timer_miliseconds_remainder += fmod(time_passed ,TIME_PER_CYCLE_MILLISECONDS);
+  uint8_t total_cycle_ammount = (time_passed / TIME_PER_CYCLE_MILLISECONDS) + (timer_miliseconds_remainder / TIME_PER_CYCLE_MILLISECONDS);
+  if(chip_8.delay_timer > 0){
+    chip_8.delay_timer = chip_8.delay_timer < total_cycle_ammount ? 0 : chip_8.delay_timer - total_cycle_ammount;
+  }
+  if(chip_8.sound_timer > 0){
+    chip_8.sound_timer = chip_8.sound_timer < total_cycle_ammount ? 0 : chip_8.sound_timer - total_cycle_ammount;
+  }
+  timer_miliseconds_remainder = fmod(timer_miliseconds_remainder,TIME_PER_CYCLE_MILLISECONDS);
+  double time_to_wait = SECS_PER_INSTRUCTION - time_passed;
   if(time_to_wait > 0 && time_to_wait < SECS_PER_INSTRUCTION){
     SDL_Delay(time_to_wait);
   }
@@ -207,42 +218,47 @@ void handle_opcode(uint8_t* memory_address){
       case 4:
         if(chip_8.variable_registers[second_most_significant_hex] + chip_8.variable_registers[third_most_significant_hex] > UINT8_MAX)
         {
+          chip_8.variable_registers[second_most_significant_hex] += chip_8.variable_registers[third_most_significant_hex];
           chip_8.variable_registers[0xF] = 1;
         }else{
+          chip_8.variable_registers[second_most_significant_hex] += chip_8.variable_registers[third_most_significant_hex];
           chip_8.variable_registers[0xF] = 0;
         }
-        chip_8.variable_registers[second_most_significant_hex] += chip_8.variable_registers[third_most_significant_hex];
       break;
 
       case 5:
         if(chip_8.variable_registers[second_most_significant_hex] - chip_8.variable_registers[third_most_significant_hex] < 0)
         {
+          chip_8.variable_registers[second_most_significant_hex] -= chip_8.variable_registers[third_most_significant_hex];
           chip_8.variable_registers[0xF] = 0;
         }else{
+          chip_8.variable_registers[second_most_significant_hex] -= chip_8.variable_registers[third_most_significant_hex];
           chip_8.variable_registers[0xF] = 1;
         }
-        chip_8.variable_registers[second_most_significant_hex] -= chip_8.variable_registers[third_most_significant_hex];
       break;
 
       case 6:
-        chip_8.variable_registers[0xF] = chip_8.variable_registers[second_most_significant_hex] & 1;
+        uint8_t shifted_right_bit = chip_8.variable_registers[second_most_significant_hex] & 1;
         chip_8.variable_registers[second_most_significant_hex] >>= 1;
+        chip_8.variable_registers[0xF] = shifted_right_bit;
       break;
 
       //NOT TESTED
       case 7:
         if(chip_8.variable_registers[third_most_significant_hex] - chip_8.variable_registers[second_most_significant_hex] < 0)
         {
+          chip_8.variable_registers[second_most_significant_hex] = chip_8.variable_registers[third_most_significant_hex] - chip_8.variable_registers[second_most_significant_hex];
           chip_8.variable_registers[0xF] = 0;
         }else{
+          chip_8.variable_registers[second_most_significant_hex] = chip_8.variable_registers[third_most_significant_hex] - chip_8.variable_registers[second_most_significant_hex];
           chip_8.variable_registers[0xF] = 1;
         }
-        chip_8.variable_registers[second_most_significant_hex] = chip_8.variable_registers[third_most_significant_hex] - chip_8.variable_registers[second_most_significant_hex];
       break;
 
       case 0xE:
-        chip_8.variable_registers[0xF] = chip_8.variable_registers[second_most_significant_hex] & 0x80;
+        uint8_t shifted_left_bit = chip_8.variable_registers[second_most_significant_hex] & 0x80 ? 1:0;
         chip_8.variable_registers[second_most_significant_hex] <<= 1;
+        chip_8.variable_registers[0xF] = shifted_left_bit;
       break;
     }
   break;
@@ -257,12 +273,17 @@ void handle_opcode(uint8_t* memory_address){
     chip_8.index_register = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
   break;
 
-  //TODO: IMPLEMENT
+  //NOT TESTED
   case 0xB:
+    uint16_t jump_counter_flow = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
+    
+    //Make pc counter 2 less than expected due to main loop incrementing pc counter by 2
+    chip_8.pc_counter = jump_counter_flow + chip_8.variable_registers[0] - 2;
   break;
 
-  //TODO: IMPLEMENT
+  //NOT TESTED
   case 0xC:
+    chip_8.variable_registers[second_most_significant_hex] = (rand() % 255) & ((third_most_significant_hex << 4) + fourth_most_significant_hex);
   break;
   
   case 0xD:
@@ -285,28 +306,34 @@ void handle_opcode(uint8_t* memory_address){
   case 0xF:
     switch ((third_most_significant_hex << 4) + fourth_most_significant_hex)
     {
-      //TODO: IMPLEMENT
+      //NOT TESTED
       case 0x07:
+        chip_8.variable_registers[second_most_significant_hex] = chip_8.delay_timer;
       break;
 
       //TODO: IMPLEMENT
       case 0x0A:
+      //NEED TO CREATE BLOCKING OPERATION FOR KEY PRESS!!!!
       break;
 
-      //TODO: IMPLEMENT
+      //NOT TESTED
       case 0x15:
+        chip_8.delay_timer = chip_8.variable_registers[second_most_significant_hex];
       break;
 
-      //TODO: IMPLEMENT
+      //NOT TESTED
       case 0x18:
+        chip_8.sound_timer = chip_8.variable_registers[second_most_significant_hex];
       break;
 
-      //TODO: IMPLEMENT
+      //NOT TESTED
       case 0x1E:
+        chip_8.index_register += chip_8.variable_registers[second_most_significant_hex];
       break;
 
-      //TODO: IMPLEMENT
+      //NOT TESTED
       case 0x29:
+        chip_8.index_register = chip_8.chip_8_memory[FONT_ADDRESS_START + (second_most_significant_hex * 5)];
       break;
 
       case 0x33:
