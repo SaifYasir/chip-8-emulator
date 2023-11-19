@@ -22,6 +22,7 @@ SDL_Texture *back_buffer;
 bool quit = false;
 double latest_frame_time;
 double timer_miliseconds_remainder = 0;
+uint8_t last_key_pressed = UINT8_MAX;
 
 chip_8_machine chip_8;
 
@@ -30,7 +31,8 @@ int main(int argc, char *argv[])
   assign_program_memory(&chip_8);
   //load_program_file_in_to_program_memory(&chip_8,"IBM Logo.ch8");
   // load_program_file_in_to_program_memory(&chip_8,"test_opcode.ch8");
-  load_program_file_in_to_program_memory(&chip_8,"flags.ch8");
+  // load_program_file_in_to_program_memory(&chip_8,"quirks.ch8");
+  load_program_file_in_to_program_memory(&chip_8,"1dcell.ch8");
   assign_font_set(&chip_8);
   initialise_window();
 
@@ -88,11 +90,61 @@ void process_input(void){
       {
         case SDLK_ESCAPE:
           quit = true;
-          break;
+        break;
+
+        case SDLK_1:
+          last_key_pressed = 1;
+        break;
+        case SDLK_2:
+          last_key_pressed = 2;
+        break;
+        case SDLK_3:
+          last_key_pressed = 3;
+        break;
+        case SDLK_4:
+          last_key_pressed = 0xC;
+        break;
+        case SDLK_q:
+          last_key_pressed = 4;
+        break;
+        case SDLK_w:
+          last_key_pressed = 5;
+        break;
+        case SDLK_e:
+          last_key_pressed = 6;
+        break;
+        case SDLK_r:
+          last_key_pressed = 0xD;
+        break;
+        case SDLK_a:
+          last_key_pressed = 7;
+        break;
+        case SDLK_s:
+          last_key_pressed = 8;
+        break;
+        case SDLK_d:
+          last_key_pressed = 9;
+        break;
+        case SDLK_f:
+          last_key_pressed = 0xE;
+        break;
+        case SDLK_z:
+          last_key_pressed = 0xA;
+        break;
+        case SDLK_x:
+          last_key_pressed = 0;
+        break;
+        case SDLK_c:
+          last_key_pressed = 0xB;
+        break;
+        case SDLK_v:
+          last_key_pressed = 0xF;
+        break;
       }
     }
   }
 }
+
 
 void delay_time(void){
   double time_passed = SDL_GetTicks64() - latest_frame_time;
@@ -290,19 +342,28 @@ void handle_opcode(uint8_t* memory_address){
     display_sprite(memory_address);
   break;
 
-  //TODO: IMPLEMENT
   case 0xE:
     switch (fourth_most_significant_hex)
     {
+      //NOT TESTED
       case 0x1:
+        if (last_key_pressed != chip_8.variable_registers[second_most_significant_hex])
+        {
+          chip_8.pc_counter += 2;
+          //last_key_pressed = UINT8_MAX;
+        }
       break;
-
+    
+      //NOT TESTED
       case 0xE:
+        if(last_key_pressed == chip_8.variable_registers[second_most_significant_hex]){
+          chip_8.pc_counter += 2;
+          last_key_pressed = UINT8_MAX;
+        }
       break;
     }
   break;
 
-  //NOT TESTED
   case 0xF:
     switch ((third_most_significant_hex << 4) + fourth_most_significant_hex)
     {
@@ -313,10 +374,12 @@ void handle_opcode(uint8_t* memory_address){
 
       //TODO: IMPLEMENT
       case 0x0A:
-      //NEED TO CREATE BLOCKING OPERATION FOR KEY PRESS!!!!
+        while (last_key_pressed > 0xF)
+        {
+          process_input();
+        }      
       break;
 
-      //NOT TESTED
       case 0x15:
         chip_8.delay_timer = chip_8.variable_registers[second_most_significant_hex];
       break;
@@ -326,14 +389,16 @@ void handle_opcode(uint8_t* memory_address){
         chip_8.sound_timer = chip_8.variable_registers[second_most_significant_hex];
       break;
 
-      //NOT TESTED
       case 0x1E:
         chip_8.index_register += chip_8.variable_registers[second_most_significant_hex];
       break;
 
       //NOT TESTED
       case 0x29:
-        chip_8.index_register = chip_8.chip_8_memory[FONT_ADDRESS_START + (second_most_significant_hex * 5)];
+        //uint16_t location = FONT_ADDRESS_START + (second_most_significant_hex * 5);
+        //chip_8.index_register = chip_8.chip_8_memory[FONT_ADDRESS_START + (second_most_significant_hex * 5)];
+        //chip_8.index_register = chip_8.chip_8_memory + FONT_ADDRESS_START + (second_most_significant_hex * 5);
+        chip_8.index_register = FONT_ADDRESS_START + (second_most_significant_hex * 5);
       break;
 
       case 0x33:
@@ -386,7 +451,7 @@ void display_sprite(uint8_t* memory_address){
     for (int bit = 0; bit < 8; bit++)
     {
       uint8_t bit_value = (int)pow(2,7-bit);
-      bool bit_value_is_1 = (sprite_data & bit_value) == bit_value;
+      bool bit_value_is_1 = ((sprite_data & bit_value) == bit_value);
 
       if(x_coord + bit >= DISPLAY_WIDTH || !bit_value_is_1){
         continue;
@@ -399,7 +464,7 @@ void display_sprite(uint8_t* memory_address){
       SDL_RenderReadPixels(renderer, &pixel, 0, &pixel_info, 1);
 
       //Because format is ARGB; to see if its not black needs to be greater than 1 byte (Opacity is 8 bits)
-      if (pixel_info > 0)
+      if (pixel_info != 0 && pixel_info != 0xFF000000)
       {
         chip_8.variable_registers[15] = 1;
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <SDL.h>
 
 #define MEMORY_SIZE_BYTES 4096
 #define ROM_ADDRESS_START 0x200
