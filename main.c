@@ -20,7 +20,7 @@ SDL_Renderer *renderer;
 SDL_Texture *back_buffer;
 
 bool quit = false;
-double latest_frame_time;
+double last_frame_time;
 double timer_miliseconds_remainder = 0;
 uint8_t last_key_pressed = UINT8_MAX;
 
@@ -29,14 +29,10 @@ chip_8_machine chip_8;
 int main(int argc, char *argv[])
 {
   assign_program_memory(&chip_8);
-  //load_program_file_in_to_program_memory(&chip_8,"IBM Logo.ch8");
-  // load_program_file_in_to_program_memory(&chip_8,"test_opcode.ch8");
-  // load_program_file_in_to_program_memory(&chip_8,"quirks.ch8");
   load_program_file_in_to_program_memory(&chip_8,"1dcell.ch8");
   assign_font_set(&chip_8);
   initialise_window();
 
-//NEED TO STOP WHEN PROGRAM ENDS
   while (chip_8.pc_counter < chip_8.pc_counter_end && !quit)
   {
     handle_opcode(chip_8.chip_8_memory + chip_8.pc_counter);
@@ -147,7 +143,7 @@ void process_input(void){
 
 
 void delay_time(void){
-  double time_passed = SDL_GetTicks64() - latest_frame_time;
+  double time_passed = SDL_GetTicks64() - last_frame_time;
   timer_miliseconds_remainder += fmod(time_passed ,TIME_PER_CYCLE_MILLISECONDS);
   uint8_t total_cycle_ammount = (time_passed / TIME_PER_CYCLE_MILLISECONDS) + (timer_miliseconds_remainder / TIME_PER_CYCLE_MILLISECONDS);
   if(chip_8.delay_timer > 0){
@@ -161,6 +157,7 @@ void delay_time(void){
   if(time_to_wait > 0 && time_to_wait < SECS_PER_INSTRUCTION){
     SDL_Delay(time_to_wait);
   }
+  last_frame_time = SDL_GetTicks64();
 }
 
 void render(void){
@@ -192,7 +189,11 @@ void handle_opcode(uint8_t* memory_address){
     {
     case 0xE0:
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+      SDL_SetRenderTarget(renderer,back_buffer);
       SDL_RenderClear(renderer);
+      SDL_SetRenderTarget(renderer, NULL);
+      SDL_RenderCopy(renderer, back_buffer, NULL, NULL);
+      SDL_RenderPresent(renderer);
       break;
     
     case 0xEE:
@@ -333,7 +334,6 @@ void handle_opcode(uint8_t* memory_address){
     chip_8.pc_counter = jump_counter_flow + chip_8.variable_registers[0] - 2;
   break;
 
-  //NOT TESTED
   case 0xC:
     chip_8.variable_registers[second_most_significant_hex] = (rand() % 255) & ((third_most_significant_hex << 4) + fourth_most_significant_hex);
   break;
@@ -350,7 +350,6 @@ void handle_opcode(uint8_t* memory_address){
         if (last_key_pressed != chip_8.variable_registers[second_most_significant_hex])
         {
           chip_8.pc_counter += 2;
-          //last_key_pressed = UINT8_MAX;
         }
       break;
     
@@ -393,12 +392,8 @@ void handle_opcode(uint8_t* memory_address){
         chip_8.index_register += chip_8.variable_registers[second_most_significant_hex];
       break;
 
-      //NOT TESTED
       case 0x29:
-        //uint16_t location = FONT_ADDRESS_START + (second_most_significant_hex * 5);
-        //chip_8.index_register = chip_8.chip_8_memory[FONT_ADDRESS_START + (second_most_significant_hex * 5)];
-        //chip_8.index_register = chip_8.chip_8_memory + FONT_ADDRESS_START + (second_most_significant_hex * 5);
-        chip_8.index_register = FONT_ADDRESS_START + (second_most_significant_hex * 5);
+        chip_8.index_register = FONT_ADDRESS_START + (chip_8.variable_registers[second_most_significant_hex] * 5);
       break;
 
       case 0x33:
