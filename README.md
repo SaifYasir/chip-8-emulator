@@ -10,7 +10,7 @@ A chip-8 emulator with C, this is a learning project to help understand emulatio
 #How to run
 configuration.h file contains **PROGRAM_TO_LOAD**, change string to a given game in the games directory, if you wish to change game speed change **INSTRUCTIONS_PER_SEC** to a wanted value.
 
-| Syntax | Description |
+| Controls |
 | ----------- | ----------- |
 | Header | Title |
 | Paragraph | Text | 
