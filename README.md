@@ -16,14 +16,16 @@ configuration.h file contains **PROGRAM_TO_LOAD**, change string to a given game
 | Paragraph | Text | 
 
 # Controls
+
+Old CHIP-8 controls:
+
 | 1 | 2 | 3 | C |
 | - | - | - | - |
 | 4 | 5 | 6 | D |
 | 7 | 8 | 9 | E |
 | A | 0 | B | F |
 
-    |
-  \ | /
+replaced to:
   
 | 1 | 2 | 3 | 4 |
 | - | - | - | - |
