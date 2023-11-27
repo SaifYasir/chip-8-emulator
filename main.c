@@ -297,7 +297,6 @@ void handle_opcode(uint8_t* memory_address){
         chip_8.variable_registers[0xF] = shifted_right_bit;
       break;
 
-      //NOT TESTED
       case 7:
         if(chip_8.variable_registers[third_most_significant_hex] - chip_8.variable_registers[second_most_significant_hex] < 0)
         {
@@ -327,7 +326,6 @@ void handle_opcode(uint8_t* memory_address){
     chip_8.index_register = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
   break;
 
-  //NOT TESTED
   case 0xB:
     uint16_t jump_counter_flow = (second_most_significant_hex << 8) + (third_most_significant_hex << 4) + fourth_most_significant_hex;
     
@@ -346,7 +344,6 @@ void handle_opcode(uint8_t* memory_address){
   case 0xE:
     switch (fourth_most_significant_hex)
     {
-      //NOT TESTED
       case 0x1:
         if (last_key_pressed != chip_8.variable_registers[second_most_significant_hex])
         {
@@ -354,7 +351,6 @@ void handle_opcode(uint8_t* memory_address){
         }
       break;
     
-      //NOT TESTED
       case 0xE:
         if(last_key_pressed == chip_8.variable_registers[second_most_significant_hex]){
           chip_8.pc_counter += 2;
@@ -367,12 +363,10 @@ void handle_opcode(uint8_t* memory_address){
   case 0xF:
     switch ((third_most_significant_hex << 4) + fourth_most_significant_hex)
     {
-      //NOT TESTED
       case 0x07:
         chip_8.variable_registers[second_most_significant_hex] = chip_8.delay_timer;
       break;
 
-      //TODO: IMPLEMENT
       case 0x0A:
         while (last_key_pressed > 0xF)
         {
@@ -384,7 +378,6 @@ void handle_opcode(uint8_t* memory_address){
         chip_8.delay_timer = chip_8.variable_registers[second_most_significant_hex];
       break;
 
-      //NOT TESTED
       case 0x18:
         chip_8.sound_timer = chip_8.variable_registers[second_most_significant_hex];
       break;
