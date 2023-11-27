@@ -29,7 +29,7 @@ chip_8_machine chip_8;
 int main(int argc, char *argv[])
 {
   assign_program_memory(&chip_8);
-  load_program_file_in_to_program_memory(&chip_8,"1dcell.ch8");
+  load_program_file_in_to_program_memory(&chip_8,PROGRAM_TO_LOAD);
   assign_font_set(&chip_8);
   initialise_window();
 
@@ -150,6 +150,7 @@ void delay_time(void){
     chip_8.delay_timer = chip_8.delay_timer < total_cycle_ammount ? 0 : chip_8.delay_timer - total_cycle_ammount;
   }
   if(chip_8.sound_timer > 0){
+
     chip_8.sound_timer = chip_8.sound_timer < total_cycle_ammount ? 0 : chip_8.sound_timer - total_cycle_ammount;
   }
   timer_miliseconds_remainder = fmod(timer_miliseconds_remainder,TIME_PER_CYCLE_MILLISECONDS);
