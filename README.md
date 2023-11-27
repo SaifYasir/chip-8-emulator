@@ -20,7 +20,7 @@ Old CHIP-8 controls:
 | 7 | 8 | 9 | E |
 | A | 0 | B | F |
 
-replaced to:
+Replaced to:
   
 | 1 | 2 | 3 | 4 |
 | - | - | - | - |
@@ -31,7 +31,7 @@ replaced to:
 
 # Want to make this yourself?
 Here are some guides to learn how to make your own chip 8 emulator:
-- [tobias's chip-8 guide](https://tobiasvl.github.io/blog/write-a-chip-8-emulator/)
-- [wikipedia](https://en.wikipedia.org/wiki/CHIP-8)
+- [Tobias's chip-8 guide](https://tobiasvl.github.io/blog/write-a-chip-8-emulator/)
+- [Wikipedia](https://en.wikipedia.org/wiki/CHIP-8)
 
 **Currently this project is on hold, no ETA for any updates**
