@@ -1,15 +1,19 @@
 # chip-8-emulator
 A chip-8 emulator with C, this is a learning project to help understand emulation and gain further skills within C.
 
-#Libraries used
+# Libraries used
 - SDL2
 
-#Things to implement
+# Things to implement
 - Sound
 
 #How to run
 configuration.h file contains **PROGRAM_TO_LOAD**, change string to a given game in the games directory, if you wish to change game speed change **INSTRUCTIONS_PER_SEC** to a wanted value.
 
+| Syntax | Description |
+| ----------- | ----------- |
+| Header | Title |
+| Paragraph | Text | 
 # Controls
 1 	2 	3 	C            
 4 	5 	6 	D
